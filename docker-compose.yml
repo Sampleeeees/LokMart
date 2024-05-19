@@ -1,0 +1,51 @@
+version: "3.8"
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  redis_data:
+
+services:
+  db:
+    container_name: lokmart_postgres_db
+    build:
+      context: deploy/postgresql
+      dockerfile: Dockerfile
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:Z
+    env_file:
+      - .env
+    restart: always
+
+  backend:
+    container_name: lokmart_backend
+    build:
+      context: .
+      dockerfile: deploy/backend/Dockerfile
+    volumes:
+      - static_volume:/usr/src/app/static
+      - media_volume:/usr/src/app/media
+    env_file:
+      - .env
+    ports:
+      - "8111:80"
+    command: make start-docker
+    restart: always
+    depends_on:
+      - db
+
+  nginx:
+    container_name: lokmart_nginx
+    build:
+      context: deploy/nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_volume:/usr/src/app/static
+      - media_volume:/usr/src/app/media
+    restart: on-failure
+    depends_on:
+      - backend

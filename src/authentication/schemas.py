@@ -45,7 +45,7 @@ class RegisterUserSchema(Schema):
         return value
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "full_name": "John Doe",
                 "email": "john.doe@example.com",

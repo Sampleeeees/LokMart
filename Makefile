@@ -19,5 +19,16 @@ migrate:
 	$(MANAGE) migrate
 
 
+start-docker:
+	$(MANAGE) migrate
+	$(MANAGE) collectstatic --noinput
+	$(MANAGE) create_superuser
+	gunicorn --workers=3 --timeout=120 config.wsgi -b 0.0.0.0:8111 --reload
+
+docker-run:
+	docker-compose -f docker-compose.yml up --build
+
+docker-down:
+	docker-compose -f docker-compose.yml down
 
 

@@ -28,8 +28,6 @@ services:
       - media_volume:/usr/src/app/media
     env_file:
       - .env
-    ports:
-      - "8111:80"
     command: make start-docker
     restart: always
     depends_on:
@@ -41,8 +39,7 @@ services:
       context: deploy/nginx
       dockerfile: Dockerfile
     ports:
-      - "80:80"
-      - "443:443"
+      - "127.0.0.1:8111:80"
     volumes:
       - static_volume:/usr/src/app/static
       - media_volume:/usr/src/app/media

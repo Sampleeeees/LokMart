@@ -2,7 +2,7 @@
 MANAGE = python manage.py
 SOURCE = src
 
-# Commands
+# python base commands
 
 run:
 	$(MANAGE) create_superuser
@@ -19,6 +19,7 @@ migrate:
 	$(MANAGE) migrate
 
 
+# docker command
 start-docker:
 	$(MANAGE) migrate
 	$(MANAGE) collectstatic --noinput
@@ -32,3 +33,9 @@ docker-down:
 	docker-compose -f docker-compose.yml down
 
 
+# Celery command
+worker:
+	celery -A config.celery worker -l info
+
+purge:
+	celery -A config.celery purge

@@ -16,7 +16,6 @@ class LoginResponseSchema(Schema):
 
     access_token: str
     refresh_token: str
-    user: LoginSchema
 
 
 class SuccessSchema(Schema):
@@ -27,6 +26,12 @@ class SuccessSchema(Schema):
 class EmailSchema(Schema):
     """ Email schema """
     email: EmailStr
+
+
+class VerifyEmailSchema(Schema):
+    """ Verify email schema """
+    email: EmailStr
+    code: int
 
 
 class RegisterUserSchema(Schema):

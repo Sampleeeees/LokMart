@@ -3,13 +3,11 @@ Authentication Endpoints.
 """
 
 from django.http import HttpRequest
-from ninja_extra import api_controller, route, ControllerBase, status
-from ninja_jwt.controller import TokenObtainPairController
+from ninja_extra import api_controller, route, ControllerBase
 
-from src.authentication.schemas import LoginSchema, LoginResponseSchema, RegisterUserSchema, SuccessSchema, EmailSchema
+from src.authentication.schemas import RegisterUserSchema, SuccessSchema, EmailSchema, \
+    VerifyEmailSchema
 from src.authentication.services.auth_service import AuthService
-from src.core.base_openapi_extra import get_base_openapi_extra
-from src.users.models import User
 
 
 @api_controller('/auth', tags=["auth"])
@@ -33,16 +31,27 @@ class AuthController(ControllerBase):
         """
         return self._auth_service.user_register(user=user)
 
-    @route.post("/reset-password", tags=["auth"], response=SuccessSchema)
-    def reset_password(self, request: HttpRequest, email: EmailSchema):
+    @route.post("/confirm-email", tags=["auth"])
+    def confirm_email(self, request: HttpRequest, verify_email: VerifyEmailSchema):
         """
-        Reset user password
+        Verify email confirmation code
 
         :param request: HttpRequest request
-        :param email: User email (EmailSchema)
-        :return:
+        :param verify_email: Schema with email and code
+        :return: SuccessSchema | HttpError
         """
-        return self._auth_service.reset_password(email=email)
+        return self._auth_service.verify_email(verify_email=verify_email)
+
+    # @route.post("/reset-password", tags=["auth"], response=SuccessSchema)
+    # def reset_password(self, request: HttpRequest, email: EmailSchema):
+    #     """
+    #     Reset user password
+    #
+    #     :param request: HttpRequest request
+    #     :param email: User email (EmailSchema)
+    #     :return:
+    #     """
+    #     return self._auth_service.reset_password(email=email)
 
     # @route.post("/change-password", tags=["auth"], response=SuccessSchema)
     # def change_password(self, request: HttpRequest, change_schema: ChangePasswordSchema) -> SuccessSchema:

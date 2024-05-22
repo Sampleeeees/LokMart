@@ -1,11 +1,5 @@
 version: "3.8"
 
-volumes:
-  postgres_data:
-  static_volume:
-  media_volume:
-  redis_data:
-
 services:
   db:
     container_name: lokmart_postgres_db
@@ -33,6 +27,26 @@ services:
     depends_on:
       - db
 
+  redis:
+    image: redis:alpine
+
+  celery:
+    container_name: lokmart_celery
+    build:
+      context: .
+      dockerfile: deploy/backend/Dockerfile
+    command: make worker
+    env_file:
+      - .env
+    volumes:
+      - static_volume:/usr/src/app/static
+      - media_volume:/usr/src/app/media
+    depends_on:
+      - db
+      - backend
+      - redis
+    restart: always
+
   nginx:
     container_name: lokmart_nginx
     build:
@@ -46,3 +60,9 @@ services:
     restart: on-failure
     depends_on:
       - backend
+
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

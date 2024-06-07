@@ -1,15 +1,16 @@
+"""Django unfold module."""
+
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
-
-UNFOLD = {
+UNFOLD_SETTINGS = {
     "SITE_TITLE": "LokMart",
     "SITE_HEADER": " ",
     "SITE_URL": "/",
     "SITE_ICON": {
         "light": lambda request: static("lokmart_light.png"),
-        "dark": lambda request: static("lokmart_dark.png")
+        "dark": lambda request: static("lokmart_dark.png"),
     },
     "SITE_SYMBOL": "speed",
     "SHOW_HISTORY": True,
@@ -17,14 +18,10 @@ UNFOLD = {
     "THEME": "dark",
     "LOGIN": {
         "image": lambda request: static("sample/login-bg.jpg"),
-        #"redirect_after": lambda request: reverse_lazy("admin:APP_MODEL_changelist"),
     },
     "STYLES": [
         lambda request: static("unfold_admin/css/style.css"),
     ],
-    # "SCRIPTS": [
-    #     lambda request: static("js/script.js"),
-    # ],
     "COLORS": {
         "primary": {
             "50": "250 245 255",
@@ -61,7 +58,6 @@ UNFOLD = {
                         "title": _("Dashboard"),
                         "icon": "dashboard",  # Supported icon set: https://fonts.google.com/icons
                         "link": reverse_lazy("admin:index"),
-                        #"badge": "sample_app.badge_callback",
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
@@ -69,12 +65,7 @@ UNFOLD = {
                         "icon": "people",
                         "link": reverse_lazy("admin:users_user_changelist"),
                     },
-                    # {
-                    #     "title": _("Users"),
-                    #     "icon": "people",
-                    #     "link": reverse_lazy("admin:users_user_changelist"),
-                    # },
-                      {
+                    {
                         "title": _("Category"),
                         "icon": "category",
                         "link": reverse_lazy("admin:categories_category_changelist"),
@@ -84,207 +75,64 @@ UNFOLD = {
                         "title": _("Gallery"),
                         "icon": "gallery_thumbnail",
                         "link": reverse_lazy("admin:gallery_gallery_changelist"),
-                        "permission": lambda request: request.user.is_superuser
+                        "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": _("Image"),
                         "icon": "image",
                         "link": reverse_lazy("admin:gallery_image_changelist"),
-                        "permission": lambda request: request.user.is_superuser
+                        "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": _("Welcome block"),
                         "icon": "home",
                         "link": reverse_lazy("admin:helps_welcomeblock_changelist"),
-                        "permission": lambda request: request.user.is_superuser
+                        "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": _("Help"),
                         "icon": "help",
                         "link": reverse_lazy("admin:helps_helpcenter_changelist"),
-                        "permission": lambda request: request.user.is_superuser
+                        "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": _("Product"),
                         "icon": "home",
                         "link": reverse_lazy("admin:products_product_changelist"),
-                        "permission": lambda request: request.user.is_superuser
+                        "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": _("Discount"),
                         "icon": "tag",
                         "link": reverse_lazy("admin:products_productdiscount_changelist"),
-                        "permission": lambda request: request.user.is_superuser
+                        "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": _("Review"),
                         "icon": "tag",
                         "link": reverse_lazy("admin:reviews_review_changelist"),
-                        "permission": lambda request: request.user.is_superuser
+                        "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": _("Tag"),
-                        "icon": 'tag',
+                        "icon": "tag",
                         "link": reverse_lazy("admin:tags_tag_changelist"),
-                        "permission": lambda request: request.user.is_superuser
+                        "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": _("Product Tag"),
-                        "icon": 'tag',
+                        "icon": "tag",
                         "link": reverse_lazy("admin:products_producttag_changelist"),
-                        "permission": lambda request: request.user.is_superuser
+                        "permission": lambda request: request.user.is_superuser,
                     },
                     {
                         "title": _("Promo code"),
                         "icon": "code",
                         "link": reverse_lazy("admin:promocodes_promocode_changelist"),
-                        "permission": lambda request: request.user.is_superuser
-                    }
-                ]
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                ],
             }
         ],
     },
-    #     "navigation": [
-    #         {
-    #             "title": _("Navigation"),
-    #             "separator": True,  # Top border
-    #             "items": [
-    #                 {
-    #                     "title": _("Dashboard"),
-    #                     "icon": "dashboard",  # Supported icon set: https://fonts.google.com/icons
-    #                     "link": reverse_lazy("admin:index"),
-    #                     #"badge": "sample_app.badge_callback",
-    #                     "permission": lambda request: request.user.is_superuser,
-    #                 },
-    #                 {
-    #                     "title": _("User"),
-    #                     "icon": "people",
-    #                     "link": reverse_lazy("admin:users_user_changelist"),
-    #                 }
-    #                 # {
-    #                 #     "title": _("Users"),
-    #                 #     "icon": "people",
-    #                 #     "link": reverse_lazy("admin:users_user_changelist"),
-    #                 # },
-    #             ],
-    #         },
-    #         {
-    #             "title": _("Category"),
-    #             "separator": True,
-    #             "items": [
-    #                 {
-    #                     "title": _("Category"),
-    #                     "icon": "category",
-    #                     "link": reverse_lazy("admin:categories_category_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser,
-    #                 }
-    #             ],
-    #
-    #         },
-    #         {
-    #             "title": _("Gallery"),
-    #             "separator": True,
-    #             "items": [
-    #                 {
-    #                     "title": _("Gallery"),
-    #                     "icon": "gallery_thumbnail",
-    #                     "link": reverse_lazy("admin:gallery_gallery_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser
-    #                 },
-    #                 {
-    #                     "title": _("Image"),
-    #                     "icon": "image",
-    #                     "link": reverse_lazy("admin:gallery_image_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser
-    #                 }
-    #             ]
-    #         },
-    #         {
-    #             "title": _("Welcome & Help"),
-    #             "separator": True,
-    #             "items": [
-    #                 {
-    #                     "title": _("Welcome block"),
-    #                     "icon": "home",
-    #                     "link": reverse_lazy("admin:helps_welcomeblock_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser
-    #                 },
-    #                 {
-    #                     "title": _("Help"),
-    #                     "icon": "help",
-    #                     "link": reverse_lazy("admin:helps_helpcenter_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser
-    #                 }
-    #             ]
-    #         },
-    #         {
-    #             "title": _("Product"),
-    #             "separator": True,
-    #             "items": [
-    #                 {
-    #                     "title": _("Product"),
-    #                     "icon": "home",
-    #                     "link": reverse_lazy("admin:products_product_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser
-    #                 },
-    #                 {
-    #                     "title": _("Discount"),
-    #                     "icon": "tag",
-    #                     "link": reverse_lazy("admin:products_productdiscount_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser
-    #                 }
-    #             ]
-    #         },
-    #         {
-    #             "title": _("Review"),
-    #             "separator": True,
-    #             "items": [
-    #                 {
-    #                     "title": _("Review"),
-    #                     "icon": "tag",
-    #                     "link": reverse_lazy("admin:reviews_review_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser
-    #                 }
-    #             ]
-    #         },
-    #         {
-    #             "title": _("Tag"),
-    #             "separator": True,
-    #             "items": [
-    #                 {
-    #                     "title": _("Tag"),
-    #                     "icon": 'tag',
-    #                     "link": reverse_lazy("admin:tags_tag_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser
-    #                 }
-    #             ]
-    #         },
-    #         {
-    #             "title": _("Promo code"),
-    #             "separator": True,
-    #             "items": [
-    #                 {
-    #                     "title": _("Promo code"),
-    #                     "icon": "code",
-    #                     "link": reverse_lazy("admin:promocodes_promocode_changelist"),
-    #                     "permission": lambda request: request.user.is_superuser
-    #                 }
-    #             ]
-    #         }
-    #     ],
-    # },
-    # "TABS": [
-    #     {
-    #         "models": [
-    #             "app_label.model_name_in_lowercase",
-    #         ],
-    #         "items": [
-    #             {
-    #                 "title": _("Your custom title"),
-    #                 "link": reverse_lazy("admin:app_label_model_name_changelist"),
-    #                 "permission": "sample_app.permission_callback",
-    #             },
-    #         ],
-    #     },
-    # ],
 }

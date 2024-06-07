@@ -1,60 +1,71 @@
-"""
-Auth schemas.
-"""
-from ninja import Schema, ModelSchema
-from pydantic import EmailStr, validator
+"""Auth schemas."""
+
+from ninja import Schema
+from pydantic import EmailStr
 
 
 class LoginSchema(Schema):
-    """Login schemas"""
+    """Login schemas."""
+
     email: str
     password: str
 
 
 class LoginResponseSchema(Schema):
-    """Login response schema"""
+    """Login response schema."""
 
     access_token: str
     refresh_token: str
 
 
 class SuccessSchema(Schema):
-    """ Success message schema """
+    """Success message schema."""
+
     message: str | None
 
 
 class EmailSchema(Schema):
-    """ Email schema """
+    """Email schema."""
+
     email: EmailStr
 
 
 class VerifyEmailSchema(Schema):
-    """ Verify email schema """
+    """Verify email schema."""
+
     email: EmailStr
     code: int
 
 
+class EmailAlreadyRegisteredSchema(Schema):
+    """User with email already registered schema."""
+
+    detail: str = "Email already registered"
+
+
 class RegisterUserSchema(Schema):
-    """
-    Register new user schema
-    """
+    """Register new user schema."""
 
     full_name: str
     email: EmailStr
     password: str
 
-    @validator("full_name")
-    def validate_full_name(cls, value):
-        if len(value.split()) < 2:
-            raise ValueError("User must have both name and surname")
-        return value
-
     class Config:
+        """Class Config for set json extra schema."""
+
         json_schema_extra = {
             "example": {
                 "full_name": "John Doe",
                 "email": "john.doe@example.com",
-                "password": "strongpassword123"
+                "password": "strongpassword123",
             }
         }
 
+
+class RegisterOutUserSchema(Schema):
+    """Register successfully user schema."""
+
+    status_code: int
+    message: str
+    access_token: str
+    refresh_token: str

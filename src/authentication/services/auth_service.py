@@ -4,17 +4,20 @@ from secrets import randbelow
 
 import redis
 from django.core.exceptions import ObjectDoesNotExist
-from ninja.errors import HttpError
 from ninja_extra import status
 from ninja_jwt.tokens import RefreshToken
 
 from config import settings
+from src.authentication.exceptions import EmailAlreadyExistExceptionError
 from src.authentication.schemas import LoginResponseSchema
 from src.authentication.schemas import RegisterOutUserSchema
 from src.authentication.schemas import RegisterUserSchema
 from src.authentication.schemas import SuccessSchema
 from src.authentication.schemas import VerifyEmailSchema
 from src.authentication.tasks import send_verification_code
+from src.users.exceptions import InvalidVerificationCodeExceptionError
+from src.users.exceptions import UserNotFoundExceptionError
+from src.users.exceptions import VerificationCodeNotFoundExceptionError
 from src.users.models import User
 
 redis_instance = redis.from_url(settings.REDIS_URL)
@@ -45,10 +48,7 @@ class AuthService:
         :return:
         """
         if User.objects.filter(email=user.email).exists():
-            raise HttpError(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                message="Email already registered",
-            )
+            raise EmailAlreadyExistExceptionError(message=f"User with email {user.emal} already exists.")
 
         verification_code: int = self.generate_verification_code()
 
@@ -72,24 +72,19 @@ class AuthService:
         try:
             user: User = User.objects.get(email=verify_email.email, is_active=False)
         except ObjectDoesNotExist as error:
-            raise HttpError(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                message="User with this email is not registered or already active",
+            raise UserNotFoundExceptionError(
+                message="User with this email is not registered or already active"
             ) from error
 
         verification_code = redis_instance.get(verify_email.email)
         if not verification_code:
-            raise HttpError(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                message="Verification code not found. Please start registration again.",
+            raise VerificationCodeNotFoundExceptionError(
+                message=f"Verification code for {verify_email.email} not found. Start register again."
             )
 
         code = verification_code.decode("utf-8")
         if code != verify_email.code:
-            raise HttpError(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                message="Invalid verification code",
-            )
+            raise InvalidVerificationCodeExceptionError(message=f"Code {code} is invalid.")
 
         user.is_active = True
         user.save()

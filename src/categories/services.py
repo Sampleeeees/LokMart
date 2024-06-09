@@ -1,31 +1,67 @@
 """Categories service."""
-from typing import List, Union
 
+from django.db.models import QuerySet
+from django.http import HttpRequest
+
+from src.categories.exceptions import CategoryListNotFoundExceptionError
+from src.categories.exceptions import CategoryNotFoundByIdExceptionError
+from src.categories.exceptions import CategoryNotFoundExceptionError
 from src.categories.models import Category
+from src.categories.schemas import CategorySchema
 
 
 class CategoryService:
     """Category service class."""
 
     @staticmethod
-    def get_categories() -> List[Category]:
+    def category_schema(request: HttpRequest, categories: QuerySet[Category]) -> list[CategorySchema]:
+        """Parse queryset category to CategorySchema.
+
+        :param request: HttpRequest
+        :param categories: Queryset of category model.
+
+        :return: Parsed CategorySchema list.
+
         """
-        Get all categories.
+        host = request.build_absolute_uri("/")
+        return [
+            CategorySchema(id=category.pk, name=category.name, image=host + category.image.url)
+            for category in categories
+        ]
+
+    def get_categories(self, request: HttpRequest) -> list[CategorySchema]:
+        """Get all categories.
 
         :return: List of categories.
         """
-        return Category.objects.all()
+        categories: QuerySet[Category] = Category.objects.all()
+        if not categories:
+            raise CategoryListNotFoundExceptionError
+        return self.category_schema(request, categories)
 
-    @staticmethod
-    def find_category_by_name(name: str) -> Union[List[Category], Category, None]:
-        """
-        Find category by name.
+    def find_category_by_name(self, request: HttpRequest, name: str):
+        """Find category by name.
 
+        :param request: HttpRequest.
         :param name: Name category(str)
+
         :return: Category object or None
         """
-        category = Category.objects.search_categories_by_name(name=name)
-        if category:
-            return category
-        return None
+        if categories := Category.objects.search_categories_by_name(name=name):
+            return self.category_schema(request=request, categories=categories)
+        raise CategoryNotFoundExceptionError(message=f"Category by name {name} not found")
 
+    @staticmethod
+    def get_category_by_id(request: HttpRequest, category_id: int) -> CategorySchema | None:
+        """Get category by category_id.
+
+        :param request: HttpRequest object.
+        :param category_id: category id. (int)
+
+        :return: CategorySchema or None
+        """
+        if category := Category.objects.filter(pk=category_id).first():
+            return CategorySchema(
+                id=category.pk, name=category.name, image=request.build_absolute_uri(category.image.url)
+            )
+        raise CategoryNotFoundByIdExceptionError(message=f"The category not found by number id {category_id}.")

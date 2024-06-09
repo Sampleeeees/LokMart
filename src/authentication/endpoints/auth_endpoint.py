@@ -5,13 +5,17 @@ from ninja_extra import ControllerBase
 from ninja_extra import api_controller
 from ninja_extra import route
 
-from src.authentication.schemas import EmailAlreadyRegisteredSchema
+from src.authentication.exceptions import EmailAlreadyExistExceptionError
 from src.authentication.schemas import RegisterOutUserSchema
 from src.authentication.schemas import RegisterUserSchema
 from src.authentication.schemas import SuccessSchema
 from src.authentication.schemas import VerifyEmailSchema
 from src.authentication.services.auth_service import AuthService
+from src.core.base import openapi_extra_schemas
 from src.core.base_openapi_extra import get_base_responses
+from src.users.exceptions import InvalidVerificationCodeExceptionError
+from src.users.exceptions import UserNotFoundExceptionError
+from src.users.exceptions import VerificationCodeNotFoundExceptionError
 
 
 @api_controller("/auth", tags=["auth"])
@@ -25,7 +29,15 @@ class AuthController(ControllerBase):
     @route.post(
         "/registration",
         tags=["auth"],
-        response=get_base_responses({200: SuccessSchema, 400: EmailAlreadyRegisteredSchema}),
+        response=get_base_responses(
+            {
+                200: SuccessSchema,
+                409: EmailAlreadyExistExceptionError,
+            }
+        ),
+        openapi_extra=openapi_extra_schemas(
+            EmailAlreadyExistExceptionError,
+        ),
     )
     def registration(self, request: HttpRequest, user: RegisterUserSchema) -> SuccessSchema:
         """Register a new user.
@@ -48,7 +60,18 @@ class AuthController(ControllerBase):
 
     @route.post(
         "/confirm-email",
-        response=get_base_responses({200: RegisterOutUserSchema}),
+        response=get_base_responses(
+            {
+                200: RegisterOutUserSchema,
+                404: VerificationCodeNotFoundExceptionError,
+                409: InvalidVerificationCodeExceptionError,
+            }
+        ),
+        openapi_extra=openapi_extra_schemas(
+            VerificationCodeNotFoundExceptionError,
+            InvalidVerificationCodeExceptionError,
+            UserNotFoundExceptionError,
+        ),
         tags=["auth"],
     )
     def confirm_email(self, request: HttpRequest, verify_email: VerifyEmailSchema):
@@ -63,6 +86,9 @@ class AuthController(ControllerBase):
         -------
           - **200**: *Success response* -> Message about sent code verification to email.
           - **401**: *Error response* -> Unauthorized.
+          - **404**: *Error response* -> User not found.
+          - **404**: *Error response* -> Invalid verification code.
+          - **409**: *Error response* -> User with this email already exists.
           - **500**: *Internal server response* -> Unexpected error.
 
         """

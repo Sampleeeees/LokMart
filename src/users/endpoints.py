@@ -6,8 +6,9 @@ from ninja_extra import api_controller
 from ninja_extra import route
 from ninja_jwt.authentication import JWTAuth
 
+from src.core.base import openapi_extra_schemas
 from src.core.base_openapi_extra import get_base_responses
-from src.users.schemas import UserNotFound
+from src.users.exceptions import UserNotFoundExceptionError
 from src.users.schemas import UserResponseSchema
 from src.users.schemas import UserUpdateSchema
 from src.users.service import UserService
@@ -23,7 +24,8 @@ class UserController(ControllerBase):
 
     @route.get(
         "/profile",
-        response=get_base_responses({200: UserResponseSchema, 404: UserNotFound}),
+        response=get_base_responses({200: UserResponseSchema, 404: UserNotFoundExceptionError}, auth=True),
+        openapi_extra=openapi_extra_schemas(UserNotFoundExceptionError, auth=True),
         auth=JWTAuth(),
     )
     def get_profile(self, request: HttpRequest):
@@ -45,7 +47,17 @@ class UserController(ControllerBase):
 
     @route.patch(
         "/profile",
-        response=get_base_responses({200: UserResponseSchema, 404: UserNotFound}),
+        response=get_base_responses(
+            {
+                200: UserResponseSchema,
+                404: UserNotFoundExceptionError,
+            },
+            auth=True,
+        ),
+        openapi_extra=openapi_extra_schemas(
+            UserNotFoundExceptionError,
+            auth=True,
+        ),
         auth=JWTAuth(),
     )
     def update_profile(self, request: HttpRequest, user_body: UserUpdateSchema):

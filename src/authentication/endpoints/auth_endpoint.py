@@ -6,6 +6,7 @@ from ninja_extra import api_controller
 from ninja_extra import route
 
 from src.authentication.exceptions import EmailAlreadyExistExceptionError
+from src.authentication.schemas import EmailSchema
 from src.authentication.schemas import RegisterOutUserSchema
 from src.authentication.schemas import RegisterUserSchema
 from src.authentication.schemas import SuccessSchema
@@ -22,7 +23,7 @@ from src.users.exceptions import VerificationCodeNotFoundExceptionError
 class AuthController(ControllerBase):
     """Auth controller for login."""
 
-    def __init__(self, auth_service: AuthService):
+    def __init__(self, auth_service: AuthService) -> None:
         """Initialize."""
         self._auth_service = auth_service
 
@@ -93,3 +94,27 @@ class AuthController(ControllerBase):
 
         """
         return self._auth_service.verify_email(verify_email=verify_email)
+
+    @route.post(
+        "/reset-password",
+        response=get_base_responses(
+            {
+                200: SuccessSchema,
+            }
+        ),
+    )
+    def reset_password(self, request: HttpRequest, email: EmailSchema) -> SuccessSchema:
+        """Reset password by user email.
+
+        Params:
+        -------
+          - **request**: *HttpRequest* -> Request object.
+          - **email**: *EmailSchema.email* -> Email which user registered. ***(str)***
+
+        Response:
+        -------
+          - **200**: *Success response * -> Message about send new password to email.
+          - **404**: *Error response* -> User by email does not exist.
+          - **500**: *Internal server response* -> Unexpected error.
+        """
+        return self._auth_service.reset_password(email=email)

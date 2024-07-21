@@ -67,10 +67,15 @@ class SchemaFactory:
     def json_extra_schema(cls, exc: type):
         """Generate example json schema for exception in OpenAPI."""
         class_name = f"CustomErrorSchema_{exc.__name__}"  # Generate unique class name
-
         # create new class
         return type(
-            class_name, (Schema,), {"model_config": ConfigDict(json_schema_extra={"examples": [exc().message]})}
+            class_name,
+            (Schema,),
+            {
+                "model_config": ConfigDict(
+                    json_schema_extra={"examples": [exc().message]},
+                )
+            },
         )
 
 

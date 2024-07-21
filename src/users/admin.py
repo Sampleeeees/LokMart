@@ -1,3 +1,5 @@
+"""Admin file for users app."""
+
 from django.contrib.admin import register
 from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin
@@ -8,34 +10,23 @@ from src.users.models import User
 
 @register(User)
 class UserAdmin(ModelAdmin):
-    """
-    Unfold user admin model.
-    """
-    list_display = [
-        "user_email",
-        "user_name",
-        "user_surname",
-        "user_is_superuser"
-    ]
+    """Unfold user admin model."""
+
+    list_display = ["user_email", "user_full_name", "user_is_superuser"]
 
     @display(description=_("Email"), ordering="email")
     def user_email(self, obj) -> str:
-        """Display user email"""
+        """Display user email."""
         return obj.email
 
-    @display(description=_("Name"))
-    def user_name(self, obj) -> str:
-        """Display user name"""
-        return obj.first_name
-
-    @display(description=_("Surname"))
-    def user_surname(self, obj) -> str:
-        """Display user surname"""
-        return obj.last_name
+    @display(description=_("Full name"))
+    def user_full_name(self, obj) -> str:
+        """Display user name."""
+        return obj.full_name
 
     @display(description=_("Superuser"))
     def user_is_superuser(self, obj) -> bool:
-        """Display user is superuser"""
+        """Display user is superuser."""
         return obj.is_superuser
 
     # change position for fields
@@ -45,7 +36,6 @@ class UserAdmin(ModelAdmin):
             {
                 "fields": [
                     "full_name",
-                    ("first_name", "last_name"),
                     "password",
                     "image",
                     "is_active",
@@ -54,14 +44,5 @@ class UserAdmin(ModelAdmin):
                 ],
             },
         ),
-        (
-            _("Additional"),
-            {
-                "fields": [
-                    "last_login",
-                    "groups",
-                    "user_permissions"
-                ]
-            }
-        )
+        (_("Additional"), {"fields": ["last_login", "groups", "user_permissions"]}),
     )

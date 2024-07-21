@@ -27,6 +27,7 @@ class UserController(ControllerBase):
         response=get_base_responses({200: UserResponseSchema, 404: UserNotFoundExceptionError}, auth=True),
         openapi_extra=openapi_extra_schemas(UserNotFoundExceptionError, auth=True),
         auth=JWTAuth(),
+        by_alias=True,
     )
     def get_profile(self, request: HttpRequest):
         """Get user personal info.

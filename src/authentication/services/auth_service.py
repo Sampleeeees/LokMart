@@ -1,5 +1,8 @@
 """Authentication service."""
 
+import logging
+import secrets
+import string
 from secrets import randbelow
 
 import redis
@@ -9,11 +12,13 @@ from ninja_jwt.tokens import RefreshToken
 
 from config import settings
 from src.authentication.exceptions import EmailAlreadyExistExceptionError
+from src.authentication.schemas import EmailSchema
 from src.authentication.schemas import LoginResponseSchema
 from src.authentication.schemas import RegisterOutUserSchema
 from src.authentication.schemas import RegisterUserSchema
 from src.authentication.schemas import SuccessSchema
 from src.authentication.schemas import VerifyEmailSchema
+from src.authentication.tasks import send_reset_password
 from src.authentication.tasks import send_verification_code
 from src.users.exceptions import InvalidVerificationCodeExceptionError
 from src.users.exceptions import UserNotFoundExceptionError
@@ -21,6 +26,9 @@ from src.users.exceptions import VerificationCodeNotFoundExceptionError
 from src.users.models import User
 
 redis_instance = redis.from_url(settings.REDIS_URL)
+
+# create logger
+logger = logging.getLogger(__name__)
 
 
 class AuthService:
@@ -41,6 +49,13 @@ class AuthService:
         """Generate verification 4-digit code."""
         return randbelow(9000) + 1000
 
+    @staticmethod
+    def _generate_custom_password() -> str:
+        """Generate custom password."""
+        alphabet = string.ascii_letters + string.digits
+        password: str = "".join(secrets.choice(alphabet) for i in range(10))
+        return password
+
     def user_register(self, user: RegisterUserSchema) -> SuccessSchema:
         """Register a new user (Part 1).
 
@@ -48,7 +63,7 @@ class AuthService:
         :return:
         """
         if User.objects.filter(email=user.email).exists():
-            raise EmailAlreadyExistExceptionError(message=f"User with email {user.emal} already exists.")
+            raise EmailAlreadyExistExceptionError(message=f"User with email {user.email} already exists.")
 
         verification_code: int = self.generate_verification_code()
 
@@ -97,3 +112,22 @@ class AuthService:
             access_token=token.access_token,
             refresh_token=token.refresh_token,
         )
+
+    def reset_password(self, email: EmailSchema) -> SuccessSchema:
+        """Reset user password to new.
+
+        :param email: User email in system(str)
+        :return: SuccessSchema with text.
+        """
+        try:
+            user = User.objects.get(email=email.email)
+            new_user_password: str = self._generate_custom_password()
+
+            send_reset_password.delay(email=user.email, password=new_user_password)
+
+            user.set_password(new_user_password)
+            user.save()
+            return SuccessSchema(message="Send new password to email")
+        except ObjectDoesNotExist as error:
+            logger.exception("Object does not exist.")
+            raise UserNotFoundExceptionError from error

@@ -1,14 +1,16 @@
 """User schemas."""
 
+from humps import camelize
 from ninja import ModelSchema
 from ninja import Schema
 from pydantic import EmailStr
 from pydantic import HttpUrl
 
+from src.core.base_schema import BaseSchema
 from src.users.models import User
 
 
-class UserSchema(ModelSchema):
+class UserSchema(BaseSchema):
     """User model schema."""
 
     repeat_password: str
@@ -18,17 +20,18 @@ class UserSchema(ModelSchema):
 
         model = User
         fields = ["full_name", "email", "password"]
-        order = ["full_name", "email", "password", "repeat_password"]
 
 
 class UserResponseSchema(ModelSchema):
     """User response model schema."""
 
-    class Meta:
+    class Config:
         """Class Meta."""
 
         model = User
-        fields = ["full_name", "email", "phone_number", "image"]
+        model_fields = ["full_name", "email", "phone_number", "image"]
+        alias_generator = camelize
+        populate_by_name = True
 
 
 class UserUpdateSchema(Schema):

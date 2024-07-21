@@ -24,6 +24,7 @@ start-docker:
 	$(MANAGE) migrate
 	$(MANAGE) collectstatic --noinput
 	$(MANAGE) create_superuser
+	$(MANAGE) init_countries
 	gunicorn --workers=3 --timeout=120 config.wsgi -b 0.0.0.0:8000 --reload
 
 docker-run:

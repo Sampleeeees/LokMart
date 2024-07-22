@@ -16,7 +16,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     """Abstract base class implementing a fully featured User model."""
 
     full_name = models.CharField(max_length=255)
-    phone_number = models.CharField(max_length=255, blank=True, default=None)
+    phone_number = models.CharField(max_length=255, blank=True, null=True)  # noqa: DJ001
     email = models.EmailField(unique=True)
     image = models.ImageField(upload_to="images/user/", blank=True)
 

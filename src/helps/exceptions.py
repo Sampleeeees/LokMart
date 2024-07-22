@@ -21,3 +21,13 @@ class HelpCenterNotFoundExceptionError(HttpBaseError):
     message = "Help center not found"
     location = ""
     field = ""
+
+
+class PolicyPageNotFoundExceptionError(HttpBaseError):
+    """policy page not found."""
+
+    status_code = 404
+    code = "POLICY_PAGE_NOT_FOUND"
+    message = "Policy page not found"
+    location = ""
+    field = ""

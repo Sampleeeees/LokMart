@@ -1,6 +1,7 @@
 """Product Services Module."""
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
@@ -57,3 +58,8 @@ class ProductService:
                 product_schemas.append(product_schema)
             return product_schemas
         raise ProductNotFoundExceptionError
+
+    @staticmethod
+    def search(search_line: str) -> list[ProductModelSchema]:
+        """Search products."""
+        return Product.objects.filter(Q(name__icontains=search_line) | Q(category__name__icontains=search_line))

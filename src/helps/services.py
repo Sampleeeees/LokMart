@@ -1,10 +1,13 @@
 """Helps service module."""
 
 from src.helps.exceptions import HelpCenterNotFoundExceptionError
+from src.helps.exceptions import PolicyPageNotFoundExceptionError
 from src.helps.exceptions import WelcomeBlockNotFoundExceptionError
 from src.helps.models import HelpCenter
+from src.helps.models import PolicyPage
 from src.helps.models import WelcomeBlock
 from src.helps.schemas import HelpCenterModelSchema
+from src.helps.schemas import PolicyPageModelSchema
 from src.helps.schemas import WelcomeBlockModelSchema
 
 
@@ -24,3 +27,10 @@ class HelpService:
         if help_center := HelpCenter.objects.all():
             return help_center
         raise HelpCenterNotFoundExceptionError
+
+    @staticmethod
+    def get_terms_and_conditions() -> PolicyPageModelSchema:
+        """Get policy page object."""
+        if policy := PolicyPage.objects.first():
+            return policy
+        raise PolicyPageNotFoundExceptionError

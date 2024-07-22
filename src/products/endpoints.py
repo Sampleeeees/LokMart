@@ -46,7 +46,7 @@ class ProductController(ControllerBase):
         return self.product_service.get_product_list(request)
 
     @route.get(
-        "/{id}",
+        "/{product_id}",
         response=get_base_responses(
             {
                 200: ProductModelSchema,
@@ -90,3 +90,27 @@ class ProductController(ControllerBase):
 
         """
         return self.product_service.get_products_by_category(request=request, category_name=category_name)
+
+    @route.get(
+        "/search/",
+        response=get_base_responses({200: list[ProductModelSchema], 404: ProductNotFoundExceptionError}, auth=True),
+        openapi_extra=openapi_extra_schemas(ProductNotFoundExceptionError, auth=True),
+        auth=JWTAuth(),
+    )
+    def search_products(self, request: HttpRequest, search_line: str) -> list[ProductModelSchema]:
+        """Search products by search line.
+
+        Params
+        -------
+          - **request**: *HttpRequest* -> Request object.
+          - **search_line**: *Search text* -> Search text (str)
+
+        Returns
+        -------
+          - **200**: *Success response* -> List with products.
+          - **404**: *Error response* -> Products not found.
+          - **422**: *Error response* -> Unprocessable Entity.
+          - **500**: *Internal server response* -> Unexpected error.
+
+        """
+        return self.product_service.search(search_line=search_line)

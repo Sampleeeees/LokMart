@@ -96,6 +96,12 @@ UNFOLD_SETTINGS = {
                         "permission": lambda request: request.user.is_superuser,
                     },
                     {
+                        "title": _("Terms & Conditions"),
+                        "icon": "help",
+                        "link": reverse_lazy("admin:helps_policypage_changelist"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
                         "title": _("Product"),
                         "icon": "home",
                         "link": reverse_lazy("admin:products_product_changelist"),

@@ -4,6 +4,7 @@ from ninja import ModelSchema
 
 from src.core.base_schema import BaseSchema
 from src.helps.models import HelpCenter
+from src.helps.models import PolicyPage
 from src.helps.models import WelcomeBlock
 
 
@@ -25,3 +26,13 @@ class HelpCenterModelSchema(ModelSchema):
 
         model = HelpCenter
         model_fields = "__all__"
+
+
+class PolicyPageModelSchema(ModelSchema):
+    """Policy page model schema."""
+
+    class Config(BaseSchema.Config):
+        """Config for policy page."""
+
+        model = PolicyPage
+        model_exclude = ["id"]

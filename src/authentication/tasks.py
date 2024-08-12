@@ -4,6 +4,8 @@ from celery import shared_task
 from django.conf import settings
 from django.core.mail import send_mail
 
+from src.users.models import User
+
 
 @shared_task
 def send_verification_code(email: str, code: int) -> None:
@@ -39,3 +41,18 @@ def send_reset_password(email: str, password: str) -> None:
         recipient_list=[email],
         fail_silently=False,
     )
+
+
+@shared_task
+def check_non_active_user(user_id: int) -> None:
+    """Check if user is not active then delete him.
+
+    :param user_id: User id in system(int)
+    :return: None
+    """
+    try:
+        user: User = User.objects.get(pk=user_id)
+        if not user.is_active:
+            user.delete()
+    except User.DoesNotExist:
+        pass

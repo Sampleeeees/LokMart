@@ -18,6 +18,7 @@ from src.authentication.schemas import RegisterOutUserSchema
 from src.authentication.schemas import RegisterUserSchema
 from src.authentication.schemas import SuccessSchema
 from src.authentication.schemas import VerifyEmailSchema
+from src.authentication.tasks import check_non_active_user
 from src.authentication.tasks import send_reset_password
 from src.authentication.tasks import send_verification_code
 from src.users.exceptions import InvalidVerificationCodeExceptionError
@@ -67,15 +68,16 @@ class AuthService:
 
         verification_code: int = self.generate_verification_code()
 
-        redis_instance.set(user.email, verification_code, ex=600)
+        redis_instance.set(user.email, verification_code, ex=120)
 
         send_verification_code.delay(email=user.email, code=verification_code)
-        User.objects.create_user(
+        user: User = User.objects.create_user(
             email=user.email,
             password=user.password,
             full_name=user.full_name,
             is_active=False,
         )
+        check_non_active_user.apply_async((user.id,), countdown=120)
         return SuccessSchema(message="We send code to your email")
 
     def verify_email(self, verify_email: VerifyEmailSchema) -> RegisterOutUserSchema:
@@ -98,7 +100,7 @@ class AuthService:
             )
 
         code = verification_code.decode("utf-8")
-        if code != verify_email.code:
+        if int(code) != int(verify_email.code):
             raise InvalidVerificationCodeExceptionError(message=f"Code {code} is invalid.")
 
         user.is_active = True
